@@ -4,6 +4,8 @@ DB_PATH = "database.db"
 
 def create_gold_tables(conn):
     cur = conn.cursor()
+    # Remove rows with NULL started_time
+    cur.execute('DELETE FROM trips WHERE started_time IS NULL')
     # trips_per_station_day
     cur.execute('''
         CREATE TABLE IF NOT EXISTS trips_per_station_day AS

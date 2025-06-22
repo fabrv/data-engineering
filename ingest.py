@@ -58,7 +58,7 @@ def unzip_years(dest_folder):
 
 def main():
   base_url = 'https://s3.amazonaws.com/tripdata/'
-  years = range(2013, 2024)  # From 2013 to 2023
+  years = range(2013, 2014)  # From 2013 to 2023
   dest_folder = 'data/citibike'
 
   for year in years:
