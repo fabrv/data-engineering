@@ -3,4 +3,4 @@ database.db
 database.db-journal
 .ssh_tunnel
 .venv
-io_config.yaml
+metadata.yaml
