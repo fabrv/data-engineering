@@ -3,6 +3,9 @@ import shutil
 import glob
 from datetime import datetime
 
+if 'transformer' not in globals():
+    from mage_ai.data_preparation.decorators import transformer
+
 def flatten_citibike_data(source_folder, dest_folder):
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
@@ -15,8 +18,8 @@ def flatten_citibike_data(source_folder, dest_folder):
         filename = os.path.basename(csv_file)
         # Construct the destination path
         dest_path = os.path.join(dest_folder, filename)
-        
         metadata_file = os.path.join(dest_folder, f"{filename}.metadata.txt")
+        
         # check if metadata file already exists
         if os.path.exists(metadata_file):
             # Check if checksum matches
@@ -30,15 +33,15 @@ def flatten_citibike_data(source_folder, dest_folder):
                 else:
                     print(f"Metadata for {filename} exists but checksum does not match. Updating.")
                     os.remove(metadata_file)  # Remove the old metadata file
-                    # Continue to create new metadata file
-
+        
+        # Continue to create new metadata file
         ingestion_datetime = os.path.getmtime(csv_file)  # Get the last modified time as
         checksum = os.path.getsize(csv_file)
+        
         with open(metadata_file, 'w') as meta:
             meta.write(f"file_name: {filename}\n")
             meta.write(f"ingestion_datetime: {ingestion_datetime}\n")
             meta.write(f"checksum: {checksum}\n")
-
         
         shutil.move(csv_file, dest_path)
         print(f"Moved {csv_file} to {dest_path}")
@@ -47,10 +50,10 @@ def main():
     source_folder = 'data/citibike'
     dest_folder = f"data/bronze"
     print(f"Flattening data from {source_folder} to {dest_folder}")
-
     flatten_citibike_data(source_folder, dest_folder)
     print("Flattening complete.")
 
-
-if __name__ == "__main__":
+@transformer
+def transform_data(data, *args, **kwargs):
     main()
+    return {"status": "completed"}

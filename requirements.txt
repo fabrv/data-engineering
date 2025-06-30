@@ -1,0 +1,7 @@
+mage-ai==0.9.46
+pandas==2.2.2          
+dask==2024.6.1          
+distributed==2024.6.1   
+pyarrow==10.0.1
+polars==0.19.2
+numpy==1.26.4

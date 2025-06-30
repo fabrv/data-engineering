@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  mage:
+    build: .
+    container_name: mage_citibike
+    ports:
+      - "6789:6789"
+    volumes:
+      - ./:/app/citibike_project      
+      - ./data:/app/data
+      - ./database.db:/app/database.db
+    environment:
+      - PYTHONPATH=/app/citibike_project    
+      - DATA_DIR=/app/data
+      - DB_PATH=/app/database.db
+    restart: unless-stopped
