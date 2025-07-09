@@ -3,6 +3,22 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
+  - ingest
+  executor_config: null
+  executor_type: local_python
+  has_callback: null
+  language: python
+  name: wait_for_data
+  retry_config: null
+  status: executed
+  timeout: null
+  type: sensor
+  upstream_blocks: []
+  uuid: wait_for_data
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
   - flatten
   executor_config: null
   executor_type: local_python
@@ -10,12 +26,13 @@ blocks:
   language: python
   name: ingest
   retry_config: null
-  status: executed
+  status: null
   timeout: null
   type: data_loader
-  upstream_blocks: []
+  upstream_blocks:
+  - wait_for_data
   uuid: ingest
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -26,47 +43,47 @@ blocks:
   language: python
   name: flatten
   retry_config: null
-  status: executed
+  status: null
   timeout: null
   type: transformer
   upstream_blocks:
   - ingest
   uuid: flatten
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
   - load
-  - gold
   executor_config: null
   executor_type: local_python
   has_callback: null
   language: python
   name: silver
   retry_config: null
-  status: executed
+  status: null
   timeout: null
   type: transformer
   upstream_blocks:
   - flatten
   uuid: silver
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
-  downstream_blocks: []
+  downstream_blocks:
+  - gold
   executor_config: null
   executor_type: local_python
   has_callback: null
   language: python
   name: load
   retry_config: null
-  status: executed
+  status: null
   timeout: null
   type: data_exporter
   upstream_blocks:
   - silver
   uuid: load
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks: []
@@ -80,7 +97,7 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - silver
+  - load
   uuid: gold
 callbacks: []
 concurrency_config: {}
@@ -93,7 +110,11 @@ executor_count: 1
 executor_type: null
 extensions: {}
 name: citibike_etl
-notification_config: {}
+notification_config:
+  alert_on:
+  - trigger_failure
+  slack_config:
+    webhook_url: ${SLACK_WEBHOOK_URL}
 retry_config: {}
 run_pipeline_in_one_process: false
 settings:
@@ -101,6 +122,6 @@ settings:
 spark_config: {}
 tags: []
 type: python
-updated_at: '2025-06-30 19:33:13'
+updated_at: '2025-07-09 22:19:02'
 uuid: citibike_etl
 widgets: []

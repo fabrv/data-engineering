@@ -4,3 +4,4 @@ database.db-journal
 .ssh_tunnel
 .venv
 metadata.yaml
+.file_versions

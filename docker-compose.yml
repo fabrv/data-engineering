@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   mage:
     build: .
@@ -6,11 +7,12 @@ services:
     ports:
       - "6789:6789"
     volumes:
-      - ./:/app/citibike_project      
+      - ./:/app/citibike_project
       - ./data:/app/data
       - ./database.db:/app/database.db
     environment:
-      - PYTHONPATH=/app/citibike_project    
+      - PYTHONPATH=/app/citibike_project
       - DATA_DIR=/app/data
       - DB_PATH=/app/database.db
+      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
     restart: unless-stopped

@@ -9,12 +9,15 @@ if 'data_loader' not in globals():
 def download_file(url, dest_folder):
     print(f"Downloading {url} to {dest_folder}")
     if not os.path.exists(dest_folder):
-        os.makedirs(dest_folder)  # Create the folder if it doesn't exist
+        os.makedirs(dest_folder)
+    
     filename = os.path.join(dest_folder, url.split('/')[-1])
+    
     # Check if the file already exists
     if os.path.exists(filename):
         print(f"File {filename} already exists. Skipping download.")
         return
+    
     response = requests.get(url, stream=True)
     with open(filename, 'wb') as f:
         total_size = int(response.headers.get('content-length', 0))
@@ -23,6 +26,7 @@ def download_file(url, dest_folder):
             progress.update(len(data))
             f.write(data)
         progress.close()
+    
     print(f"Downloaded {filename}")
 
 def unzip_file(zip_path, dest_folder):
@@ -30,11 +34,14 @@ def unzip_file(zip_path, dest_folder):
     if os.path.exists(metdataPath):
         print(f"Metadata file {metdataPath} already exists. Skipping unzipping.")
         return
+    
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(dest_folder)
+    
     with open(metdataPath, 'w') as f:
         f.write(f"Downloaded from {zip_path}\n")
         f.write(f"Extracted to {dest_folder}\n")
+    
     print(f"Unzipped {zip_path} to {dest_folder}")
 
 def unzip_years(dest_folder):
@@ -52,16 +59,21 @@ def unzip_years(dest_folder):
 
 def main():
     base_url = 'https://s3.amazonaws.com/tripdata/'
-    years = range(2013, 2016)  # From 2013 to 2023
+    years = range(2013, 2024)  # From 2013 to 2023
     dest_folder = 'data/citibike'
+    
     for year in years:
         url = f"{base_url}{year}-citibike-tripdata.zip"
         download_file(url, dest_folder)
         zip_path = os.path.join(dest_folder, f"{year}-citibike-tripdata.zip")
         unzip_file(zip_path, dest_folder)
+    
     unzip_years(dest_folder)
 
 @data_loader
 def load_data(*args, **kwargs):
     main()
-    return {"status": "completed"}
+    return {"status": "completed", "message": "Descarga y extracción completada"}
+
+if __name__ == "__main__":
+    main()
