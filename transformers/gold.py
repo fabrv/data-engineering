@@ -1,6 +1,9 @@
 import sqlite3
 from pathlib import Path
 from datetime import datetime
+import sys
+sys.path.append('/app/citibike_project')
+from utils.slack_notifier import notify_failure, notify_success, notify_completion
 
 if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
@@ -145,14 +148,30 @@ def main():
 
 @transformer
 def transform(data, *args, **kwargs):
-    main()
-
-    #raise Exception("TEST: Probando notificación Slack")
-    return {
-        "status": "completed",
-        "database_path": str(DB_PATH),
-        "message": "Gold tables processed"
-    }
+    try:
+        main()
+        
+        # Success notification for gold step
+        notify_success("Gold Analytics", {
+            "tables_created": "4 analytical tables",
+            "database": str(DB_PATH),
+            "status": "Analytics ready"
+        })
+        
+        # Pipeline completion notification
+        notify_completion(5, "ETL pipeline completed")
+        
+        return {
+            "status": "completed",
+            "database_path": str(DB_PATH),
+            "message": "Gold tables processed"
+        }
+    except Exception as e:
+        notify_failure("Gold Analytics", str(e), {
+            "step": "create_analytical_tables",
+            "database": str(DB_PATH)
+        })
+        raise
 
 if __name__ == "__main__":
     main()

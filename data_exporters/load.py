@@ -1,6 +1,9 @@
 import polars as pl, os, sqlite3
 from pathlib import Path
 from datetime import datetime
+import sys
+sys.path.append('/app/citibike_project')
+from utils.slack_notifier import notify_failure, notify_success
 
 if 'data_exporter' not in globals():
     from mage_ai.data_preparation.decorators import data_exporter
@@ -228,12 +231,21 @@ def main():
 def export_data(data, *args, **kwargs):
     try:
         main()
+        notify_success("Data Loading", {
+            "database": str(DB_PATH),
+            "source": "data/silver",
+            "status": "Load finished"
+        })
         return {
             "status": "completed",
             "database_path": str(DB_PATH),
             "message": "Load finished",
         }
     except Exception as exc:
+        notify_failure("Data Loading", str(exc), {
+            "step": "load_to_database",
+            "database": str(DB_PATH)
+        })
         return {
             "status": "failed",
             "error": str(exc),

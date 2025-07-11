@@ -14,5 +14,16 @@ services:
       - PYTHONPATH=/app/citibike_project
       - DATA_DIR=/app/data
       - DB_PATH=/app/database.db
-      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+    restart: unless-stopped
+
+  dashboard:
+    build: ./dashboard
+    container_name: citibike_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - mage
     restart: unless-stopped

@@ -2,6 +2,9 @@ import os
 import shutil
 import glob
 from datetime import datetime
+import sys
+sys.path.append('/app/citibike_project')
+from utils.slack_notifier import notify_failure, notify_success
 
 if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
@@ -55,5 +58,16 @@ def main():
 
 @transformer
 def transform_data(data, *args, **kwargs):
-    main()
-    return {"status": "completed"}
+    try:
+        main()
+        notify_success("Data Flattening", {
+            "source": "data/citibike",
+            "destination": "data/bronze"
+        })
+        return {"status": "completed"}
+    except Exception as e:
+        notify_failure("Data Flattening", str(e), {
+            "step": "flatten_to_bronze",
+            "source": "data/citibike"
+        })
+        raise

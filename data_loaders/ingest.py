@@ -2,6 +2,9 @@ import os
 import requests
 from tqdm import tqdm
 import zipfile
+import sys
+sys.path.append('/app/citibike_project')
+from utils.slack_notifier import notify_failure, notify_success
 
 if 'data_loader' not in globals():
     from mage_ai.data_preparation.decorators import data_loader
@@ -45,7 +48,7 @@ def unzip_file(zip_path, dest_folder):
     print(f"Unzipped {zip_path} to {dest_folder}")
 
 def unzip_years(dest_folder):
-    for year in range(2020, 2024):
+    for year in range(2013, 2024):
         print("--------")
         print(f"Unzipping files for year {year}")
         for months in range(1, 13):
@@ -72,8 +75,19 @@ def main():
 
 @data_loader
 def load_data(*args, **kwargs):
-    main()
-    return {"status": "completed", "message": "Descarga y extracción completada"}
+    try:
+        main()
+        notify_success("Data Ingestion", {
+            "files_processed": "CitiBike data 2013",
+            "destination": "data/citibike"
+        })
+        return {"status": "completed", "message": "Descarga y extracción completada"}
+    except Exception as e:
+        notify_failure("Data Ingestion", str(e), {
+            "step": "download_and_extract",
+            "source": "s3.amazonaws.com/tripdata"
+        })
+        raise
 
 if __name__ == "__main__":
     main()

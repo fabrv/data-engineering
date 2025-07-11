@@ -1,6 +1,9 @@
 import polars as pl, re, gc, sqlite3
 from pathlib import Path
 from datetime import datetime
+import sys
+sys.path.append('/app/citibike_project')
+from utils.slack_notifier import notify_failure, notify_success
 
 if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
@@ -350,8 +353,20 @@ def main():
 
 @transformer
 def transform_data(data, *args, **kwargs):
-    metrics = main()
-    return {
-        "status": "completed",
-        "metrics_saved": len(metrics) if metrics else 0,
-    }
+    try:
+        metrics = main()
+        notify_success("Silver Processing", {
+            "years_processed": len(metrics) if metrics else 0,
+            "destination": "data/silver",
+            "quality_metrics": "saved to database"
+        })
+        return {
+            "status": "completed",
+            "metrics_saved": len(metrics) if metrics else 0,
+        }
+    except Exception as e:
+        notify_failure("Silver Processing", str(e), {
+            "step": "clean_and_transform",
+            "source": "data/bronze"
+        })
+        raise
