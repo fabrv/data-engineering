@@ -94,12 +94,12 @@ def create_gold_tables(conn: sqlite3.Connection) -> bool:
     """)
     conn.commit()
 
-    # Trip count rápido desde load_control
+    # Trip count from load_control
     print("Gold step: counting trips ...")
     cur.execute("SELECT COALESCE(SUM(rows_loaded),0) FROM load_control")
     total_trips = cur.fetchone()[0]
 
-    # ¿Ya procesado?
+    # Already processed?
     cur.execute("SELECT total_trips_processed FROM gold_process_log "
                 "ORDER BY process_timestamp DESC LIMIT 1")
     last = cur.fetchone()
@@ -119,7 +119,7 @@ def create_gold_tables(conn: sqlite3.Connection) -> bool:
     )
     conn.commit()
 
-    # Resumen rápido
+    # Summary
     for tbl in (
         "trips_per_station_day",
         "avg_duration_by_hour",

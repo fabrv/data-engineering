@@ -9,12 +9,12 @@ services:
     volumes:
       - ./:/app/citibike_project
       - ./data:/app/data
-      - ./database.db:/app/database.db
     environment:
       - PYTHONPATH=/app/citibike_project
       - DATA_DIR=/app/data
-      - DB_PATH=/app/database.db
-      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+      - DB_PATH=/app/data/database.db
+      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+      - SQLITE_TMPDIR=/tmp
     restart: unless-stopped
 
   dashboard:
@@ -23,7 +23,12 @@ services:
     ports:
       - "8501:8501"
     volumes:
-      - ./data:/app/data
+      - ./data:/app/data:ro  
     depends_on:
       - mage
     restart: unless-stopped
+    environment:
+      - DB_PATH=/app/data/database.db
+      - SQLITE_TMPDIR=/tmp
+    command: >
+      sh -c "sleep 10 && streamlit run app.py --server.port=8501 --server.address=0.0.0.0"
